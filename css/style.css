@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+
+:root {
+   --footer-color: #008;
+   --font-title: Impact;
+   --font-text: 'Raleway', Verdana, sans-serif;
+   --header-color: red;
+   --header-height: 80px;
+   --main-color: #080;
+   --main-height: calc(100vh - var(--header-height));
+}
+
+*,
+::before,
+::after {
+   box-sizing: border-box;
+   font-size: 1.6rem;
+   margin: 0;
+   padding: 0;
+}
+
+
+html {
+   /* Set font-size for REM : 16px * 62.5% = 10px */
+   font-size: 62.5%;
+   scroll-behavior: smooth;
+   /* scroll-padding-top: 60px; */
+}
+
+body {
+   font-family: var(--font-text);
+   /* width: 100%;
+    height: 100vh; */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+   font-family: var(--font-title);
+}
+
+/* HEADER */
+
+.header {
+   background-color: var(--header-color);
+   color: white;
+   height: var(--header-height);
+   display:flex;
+   justify-content: center;
+   align-items: center;;
+}
+
+.header h1  {
+   font-size: 5rem;
+}
+
+/* MAIN */
+
+.main {
+   background-color: var(--main-color);
+   min-height: var(--main-height);
+
+}
+
+.garden {
+   position:relative;
+   display: grid;
+   place-items: center;
+   grid-template-columns: repeat(3, 1fr);
+}
+
+.cube {
+   /* height: calc(var(--main-height)/3);
+   width: calc(100vw/3); */
+   height:100px;
+   width:100px;
+   border: 1px solid black;
+}
+
+.cube-hole {
+   position: absolute;
+   background-color: gray;
+}
+
+.player {
+   position: absolute;
+   bottom: 0;
+   left:0;
+   background-color: #FFF;
+   z-index: 99; 
+}
+
+.target {
+   position: absolute;
+   bottom: 0;
+   left:0;
+   background-color: orange;
+
+}
