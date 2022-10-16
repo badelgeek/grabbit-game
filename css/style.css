@@ -4,11 +4,29 @@
    --footer-color: #008;
    --font-title: Impact;
    --font-text: 'Raleway', Verdana, sans-serif;
-   --header-color: red;
+   --header-color: orange;
    --header-height: 80px;
    --main-color: #080;
    --main-height: calc(100vh - var(--header-height));
 }
+
+@keyframes playerAnim {
+   to {
+      transform: scale(0.98);
+      rotate: 2deg;
+
+   }
+}
+
+@keyframes targetAnim {
+   to {
+      opacity: 0.4;
+      transform: scale(2);
+      rotate: 2deg;
+   }
+}
+
+
 
 *,
 ::before,
@@ -28,7 +46,8 @@ html {
 }
 
 body {
-   font-family: var(--font-text);
+   font-family: var(--font-title);
+   line-height: 1.1;
    /* width: 100%;
     height: 100vh; */
 }
@@ -48,55 +67,136 @@ h6 {
    background-color: var(--header-color);
    color: white;
    height: var(--header-height);
-   display:flex;
-   justify-content: center;
-   align-items: center;;
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
 }
 
-.header h1  {
-   font-size: 5rem;
+.header__scores {
+   text-align: center;
 }
+
+.header h1 {
+   font-size: 3.5rem;
+   text-shadow: 1px 1px 1px black;
+
+}
+
+.header-total-name,
+.header-total-value,
+.header-totem-name,
+.header-totem-value {
+   font-size: 2rem;
+   font-weight: 700;
+   text-transform: uppercase;
+   font-family: var(--font-title);
+   text-shadow: 1px 1px 1px black;
+
+}
+
+.header-total-value {
+   font-size: 4rem;
+   ;
+}
+
+.header-totem-name {
+   width: 40px;
+   height: 40px;
+   background-image: url('../images/carotte.png');
+   background-size: 100%;
+}
+
+
+
 
 /* MAIN */
 
 .main {
    background-color: var(--main-color);
    min-height: var(--main-height);
-
+   display: flex;
+   justify-content: center;
+   align-items: center;
 }
 
 .garden {
-   position:relative;
+   position: relative;
    display: grid;
    place-items: center;
    grid-template-columns: repeat(3, 1fr);
 }
 
-.cube {
-   /* height: calc(var(--main-height)/3);
-   width: calc(100vw/3); */
-   height:100px;
-   width:100px;
-   border: 1px solid black;
+.round {
+   color: orange;
+   text-shadow: 2px 2px 1px #FFF;
+   line-height: 1;
+   font-size: 5rem;
+   font-weight: 700;
+   position: fixed;
+   text-transform: uppercase;
+   animation: round-animation 1s ease-in forwards;
+   z-index:20;
 }
 
-.cube-hole {
+@keyframes round-animation {
+   100% {
+      opacity: 0;
+      transform: scale(3);
+      z-index:-1;
+   }
+}
+
+.square {
+   /* height: calc(var(--main-height)/3);
+   width: calc(100vw/3); */
+   height: 100px;
+   width: 100px;
+   background-image: url('../images/grass.png');
+   background-size: 100px;
+   filter: drop-shadow(3px 3px 3px black);
+}
+
+.square-border {
+   border: 1px solid black;
+
+}
+
+.square-hole {
    position: absolute;
    background-color: gray;
+   background-image: url('../images/sol.png');
+   z-index: 2;
 }
 
 .player {
    position: absolute;
    bottom: 0;
-   left:0;
-   background-color: #FFF;
-   z-index: 99; 
+   left: 0;
+   border: none;
+   background-color: #FFF0;
+   filter: drop-shadow(3px 3px 3px black);
+   background-image: url('../images/bunny.png');
+   z-index: 10;
+   animation: playerAnim .4s ease-in-out alternate infinite;
 }
+
+
 
 .target {
    position: absolute;
    bottom: 0;
-   left:0;
-   background-color: orange;
+   left: 0;
+   /* background-color: orange; */
+   background-image: url('../images/carotte.png');
+   background-size: 80%;
+   background-repeat: no-repeat;
+   background-position: center;
+   ;
+   z-index: -1;
+}
 
+.target-found {
+   transition: all 1.5s linear;
+   opacity: 0;
+   scale: 1.6;
 }
