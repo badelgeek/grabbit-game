@@ -5,7 +5,18 @@
 // improve game.score.update
 //================================================================================
 
-//Game Object (with all parameters and functions)
+// Html Toolbox Object
+const html = {
+   createElement(type, parent, content = '') {
+      let element = document.createElement(type);
+      element.textContent = content;
+      parent.appendChild(element);
+      return element;
+   }
+}
+
+
+// Game Object (with all parameters and functions)
 const game = {
    round: 0,
    squareSize: 100,
@@ -23,7 +34,7 @@ const game = {
             game.player.element.style.bottom = `${Y}px`;
          }
       },
-      
+
    },
    score: {
       total: {
@@ -112,13 +123,15 @@ const game = {
       }
    },
    initEventListener() {
-      document.addEventListener("keyup", handleKeyboardAndButton);
-      game.garden.element.addEventListener("click", handleKeyboardAndButton);
+      document.addEventListener("keyup", game.handleKeyboardAndButton);
+      game.garden.element.addEventListener("click", game.handleKeyboardAndButton);
+   },
+   initPlayerPosition() {
+      game.player.setPosition(game.randomPosition('X'), game.randomPosition('Y'));
    },
    initTargetPosition() {
       game.round++;
       game.printRound();
-      console.log("⏩ ~ initTargetPosition ~ game.round", game.round);
       // Set n targets regarding the garden size
       let totalSquare = game.garden.totalSquare();
       let maxTarget = Math.ceil(totalSquare / 3);
@@ -129,7 +142,6 @@ const game = {
          // DOM element creation 
          const targetElement = document.createElement('div');
          targetElement.id = `target-round${game.round}-${i}`;
-         console.log("⏩ ~ initTargetPosition ~ targetElement", targetElement);
          targetElement.classList.add('square', 'target');
          game.garden.element.appendChild(targetElement);
 
@@ -147,7 +159,6 @@ const game = {
       max = Math.round(Math.random().toFixed(1) * max * game.squareSize);
       // remove modulo to have "hundred" total
       max = max - max % 100;
-      console.log("⏩ ~ randomPosition ~ max", axis, max);
       return max;
    },
    printRound() {
@@ -156,71 +167,102 @@ const game = {
       roundElem.classList.add('round');
       roundElem.textContent = `round ${game.round}`;
       game.garden.element.appendChild(roundElem);
-   }
-}
+   },
+   startPopUp() {
+      let startDiv = html.createElement('div', game.garden.element);
+      startDiv.id = 'popup-start';
+      startDiv.textContent = "You can play with touchscreen, mouse or keyboard. Enjoy !"
+      startDiv.classList.add('popup', 'popup-start');
 
+      let startButton = html.createElement('button', startDiv, 'Start Game');
+      startButton.id = 'button-start';
+      startButton.classList.add('button', 'button-start');
 
-
-
-function handleKeyboardAndButton(event) {
-   if (event.type === 'click') {
-      console.log(event.target);
-      let X = event.target.offsetLeft;
-      console.log("⏩ ~ handleKeyboardAndButton ~ X", X);
-      let Y = game.garden.height() - event.target.offsetTop - game.squareSize;
-      console.log("⏩ ~ handleKeyboardAndButton ~ Y", Y);
-      game.player.setPosition(X, Y);
-   } else if (event.key === 'ArrowUp' && game.player.Y < game.garden.height() - game.squareSize) {
-      game.player.setPosition(null, game.player.Y + game.squareSize);
-   } else if (event.key === 'ArrowDown' && game.player.Y > 0) {
-      game.player.setPosition(null, game.player.Y - game.squareSize);
-   } else if (event.key === 'ArrowLeft' && game.player.X > 0) {
-      game.player.setPosition(game.player.X - game.squareSize, null);
-   } else if (event.key === 'ArrowRight' && game.player.X < game.garden.width() - game.squareSize) {
-      game.player.setPosition(game.player.X + game.squareSize, null);
-   }
-
-   if (event.key === 'Enter' || event.code === 'Space' || event.type === 'click') {
-      let targetFound = false;
-      // Determine if player position is on target or not
-      for (let i = 0, max = game.target.maxTarget; i < max; i++) {
-         if (game.player.X === game.target.X[i] && game.player.Y === game.target.Y[i]) {
-            document.querySelector(`#target-round${game.round}-${i}`).style.zIndex = 98;
-            game.score.update(game.score.total.value + 20, game.score.total);
-            game.score.update(game.score.totem.value + 1, game.score.totem);
-            document.querySelector(`#target-round${game.round}-${i}`).classList.add('target-found');
-            document.querySelector(`#target-round${game.round}-${i}`).style.transform = `translate(${game.garden.width() / 2 - game.target.X[i]}px,${-Math.abs(game.garden.height() - game.target.Y[i])}px)`;
-            game.target.X[i] = null;
-            game.target.Y[i] = null;
-            setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
-            game.target.totalFound++;
-            targetFound = true;
-            //game.initTargetPosition();
-         }
+      startButton.addEventListener("click", () => {
+         this.hideElement(startDiv);
+         setTimeout(game.startGame, 1);
+      });
+   },
+   hideElement(element) {
+      element.style.zIndex = -1;
+   },
+   handleKeyboardAndButton(event) {
+      if (event.type === 'click') {
+         let X = event.target.offsetLeft;
+         let Y = game.garden.height() - event.target.offsetTop - game.squareSize;
+         game.player.setPosition(X, Y);
+      } else if (event.key === 'ArrowUp' && game.player.Y < game.garden.height() - game.squareSize) {
+         game.player.setPosition(null, game.player.Y + game.squareSize);
+      } else if (event.key === 'ArrowDown' && game.player.Y > 0) {
+         game.player.setPosition(null, game.player.Y - game.squareSize);
+      } else if (event.key === 'ArrowLeft' && game.player.X > 0) {
+         game.player.setPosition(game.player.X - game.squareSize, null);
+      } else if (event.key === 'ArrowRight' && game.player.X < game.garden.width() - game.squareSize) {
+         game.player.setPosition(game.player.X + game.squareSize, null);
       }
 
-      if (!targetFound) {
-         game.score.update(game.score.total.value - 2, game.score.total);
-      }
-
-      game.createHole(game.player.X, game.player.Y);
-
-      if (game.target.totalFound >= game.target.mission()) {
-         game.deleteAllElements('#hole');
+      if (event.key === 'Enter' || event.code === 'Space' || event.type === 'click') {
+         let targetFound = false;
+         // Determine if player position is on target or not
          for (let i = 0, max = game.target.maxTarget; i < max; i++) {
-            setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
+            if (game.player.X === game.target.X[i] && game.player.Y === game.target.Y[i]) {
+               document.querySelector(`#target-round${game.round}-${i}`).style.zIndex = 98;
+               game.score.update(game.score.total.value + 20, game.score.total);
+               game.score.update(game.score.totem.value + 1, game.score.totem);
+               document.querySelector(`#target-round${game.round}-${i}`).classList.add('target-found');
+               document.querySelector(`#target-round${game.round}-${i}`).style.transform = `translate(${game.garden.width() / 2 - game.target.X[i]}px,${-Math.abs(game.garden.height() - game.target.Y[i])}px)`;
+               game.target.X[i] = null;
+               game.target.Y[i] = null;
+               setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
+               game.target.totalFound++;
+               targetFound = true;
+               //game.initTargetPosition();
+            }
          }
-         game.initTargetPosition();
+
+         if (!targetFound) {
+            game.score.update(game.score.total.value - 2, game.score.total);
+         }
+
+         game.createHole(game.player.X, game.player.Y);
+
+         if (game.target.totalFound >= game.target.mission()) {
+            game.deleteAllElements('#hole');
+            for (let i = 0, max = game.target.maxTarget; i < max; i++) {
+               setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
+            }
+            game.initTargetPosition();
+            //game.initPlayerPosition();
+         }
+         targetFound = false;
       }
-      targetFound = false;
+   },
+   startTimer(timeSeconds) {
+      timeMs = timeSeconds * 100;
+      setTimeout(() => {
+         game.garden.element.removeEventListener('click', game.handleKeyboardAndButton);
+         game.player.element.removeEventListener('keyup', game.handleKeyboardAndButton);
+      }, timeMs);
+      for (let i = timeSeconds; i >= 0; i--) {
+         setTimeout(() => {
+            game.printRound(i);
+         }, 1000);
+      }
+   },
+   startGame() {
+      game.createGarden(game.garden.columns(), game.garden.rows());
+      game.initEventListener();
+      game.initPlayerPosition();
+      game.initTargetPosition();
+      //game.startTimer(5);
+
    }
+
 }
 
 
-    //grid-template-columns: repeat(3, 1fr);
-game.createGarden(game.garden.columns(), game.garden.rows());
-game.initEventListener();
-game.initTargetPosition();
+// MAIN
+game.startPopUp();
 
 
 
