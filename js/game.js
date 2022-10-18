@@ -17,7 +17,6 @@ const html = {
    }
 }
 
-
 // Game Object (with all parameters and functions)
 const game = {
    round: 0,
@@ -199,6 +198,7 @@ const game = {
       let popUpId = "popup";
       let popUpTextId = "popUpText";
       let popUpButtonId = "popUpButton";
+
       if (action === "start") {
          let popUpDiv = html.createElement('div', game.garden.element);
          popUpDiv.id = popUpId;
@@ -211,11 +211,13 @@ const game = {
          let startButton = html.createElement('button', popUpDiv, 'Start Game');
          startButton.id = popUpButtonId;
          startButton.classList.add('button', 'button-start');
+         
+         // Event handler to launch chooseTheme()
          startButton.addEventListener("click", () => {
             this.hideElement(popUpDiv);
-            //setTimeout(game.startGame, 1);
             setTimeout(game.chooseTheme, 1);
          });
+
       } else if (action === "showEndScore") {
          let popUpDiv = document.querySelector('#' + popUpId);
          let popUpText = document.querySelector('#' + popUpTextId);
@@ -317,9 +319,6 @@ const game = {
    },
 
    chooseTheme() {
-
-
-
       // Choose Theme Div
       let popUpElem = document.createElement('div');
       popUpElem.id = "choose-theme";
@@ -367,7 +366,7 @@ const game = {
       game.initEventListener();
       game.initPlayerPosition();
       game.initTargetPosition();
-      game.startTimer(3);
+      game.startTimer(30);
 
    }
 }

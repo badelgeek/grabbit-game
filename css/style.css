@@ -164,10 +164,11 @@ h6 {
    column-gap: 10px;
    z-index:99;
    width: 320px;
+   height: 500px;
 }
 
 .choose-theme img {
-   height: 40%;
+   width: 150px;
 }
 
 .choose-theme--text {
@@ -234,7 +235,6 @@ h6 {
    to {
       transform: scale(0.98);
       rotate: 2deg;
-
    }
 }
 
