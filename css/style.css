@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap');
 
 :root {
    --footer-color: #008;
-   --font-title: Impact;
-   --font-text: 'Raleway', Verdana, sans-serif;
+   --font-title: 'Play', sans-serif;
+   --font-text: 'Play', sans-serif;
    --header-color: orange;
    --header-height: 80px;
    --main-color: #080;
