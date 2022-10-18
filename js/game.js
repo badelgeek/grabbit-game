@@ -3,6 +3,8 @@
 //================================================================================
 // TODO
 // improve game.score.update
+// max width
+// timer
 //================================================================================
 
 // Html Toolbox Object
@@ -20,6 +22,7 @@ const html = {
 const game = {
    round: 0,
    squareSize: 100,
+   timeout: 3,
    player: {
       element: document.querySelector("#player"),
       X: 0,
@@ -95,6 +98,13 @@ const game = {
       },
       totalSquare() {
          return game.garden.columns() * game.garden.rows();
+      },
+      removeSquare() {
+         let elements = document.querySelectorAll('.square-border, .square-hole, .target');
+         for (let element of elements) {
+            element.remove();
+         }
+
       }
    },
    createGarden(width, height) {
@@ -168,23 +178,44 @@ const game = {
       roundElem.textContent = `round ${game.round}`;
       game.garden.element.appendChild(roundElem);
    },
-   startPopUp() {
-      let startDiv = html.createElement('div', game.garden.element);
-      startDiv.id = 'popup-start';
-      startDiv.textContent = "You can play with touchscreen, mouse or keyboard. Enjoy !"
-      startDiv.classList.add('popup', 'popup-start');
+   PopUp(action) {
+      let popUpId = "popup";
+      let popUpTextId = "popUpText";
+      let popUpButtonId = "popUpButton";
+      if (action === "start") {
+         let popUpDiv = html.createElement('div', game.garden.element);
+         popUpDiv.id = popUpId;
+         
+         let popUpText = html.createElement('p', popUpDiv, 'You can play with touchscreen, mouse or keyboard. Enjoy !');
+         popUpText.id = popUpTextId;
 
-      let startButton = html.createElement('button', startDiv, 'Start Game');
-      startButton.id = 'button-start';
-      startButton.classList.add('button', 'button-start');
+         popUpDiv.classList.add('popup', 'popup-start');
 
-      startButton.addEventListener("click", () => {
-         this.hideElement(startDiv);
-         setTimeout(game.startGame, 1);
-      });
+         let startButton = html.createElement('button', popUpDiv, 'Start Game');
+         startButton.id = popUpButtonId;
+         startButton.classList.add('button', 'button-start');
+         startButton.addEventListener("click", () => {
+            this.hideElement(popUpDiv);
+            setTimeout(game.startGame, 1);
+         });
+      } else if (action === "showEndScore") {
+         let popUpDiv = document.querySelector('#' + popUpId);
+         let popUpText = document.querySelector('#' + popUpTextId);
+         let popUpButton = document.querySelector('#' + popUpButtonId);
+         popUpText.textContent = `Your score is : ${game.score.total.value}`; 
+         popUpButton.textContent = "Play again";
+         this.showElement(popUpDiv);
+         
+      }
+
+
    },
+
    hideElement(element) {
       element.style.zIndex = -1;
+   },
+   showElement(element) {
+      element.style.zIndex = 99;
    },
    handleKeyboardAndButton(event) {
       if (event.type === 'click') {
@@ -237,32 +268,56 @@ const game = {
          targetFound = false;
       }
    },
-   startTimer(timeSeconds) {
-      timeMs = timeSeconds * 100;
+
+   startTimer(timer) {
+      let prefix = ""
+      if (timer <= 9) {
+         prefix = "0";
+         if (timer <= 5) {
+            document.querySelector('.timer-value').style.color = "red";
+         }
+      } else {
+         document.querySelector('.timer-value').style.color = "white";
+      }
+
+      if (timer === 0) {
+         document.querySelector('.timer-value').textContent = "TIME IS UP";
+         this.PopUp("showEndScore");
+         return;
+      }
+
+      document.querySelector('.timer-value').textContent = prefix + timer;
+
       setTimeout(() => {
          game.garden.element.removeEventListener('click', game.handleKeyboardAndButton);
-         game.player.element.removeEventListener('keyup', game.handleKeyboardAndButton);
-      }, timeMs);
-      for (let i = timeSeconds; i >= 0; i--) {
-         setTimeout(() => {
-            game.printRound(i);
-         }, 1000);
-      }
+         document.removeEventListener('keyup', game.handleKeyboardAndButton);
+      }, 1000 * timer);
+
+      console.log(timer);
+
+      setTimeout(() => {
+         game.startTimer(--timer)
+      }, 1000);
    },
+
    startGame() {
+      game.round = 0;
+      game.score.update(0, game.score.total);
+      game.score.update(0, game.score.totem);
+      game.score.total.value = 0;
+      game.score.totem.value = 0;
+      game.garden.removeSquare();
       game.createGarden(game.garden.columns(), game.garden.rows());
       game.initEventListener();
       game.initPlayerPosition();
       game.initTargetPosition();
-      //game.startTimer(5);
+      game.startTimer(30);
 
    }
-
 }
 
-
 // MAIN
-game.startPopUp();
+game.PopUp("start");
 
 
 
