@@ -23,6 +23,23 @@ const game = {
    round: 0,
    squareSize: 100,
    timeout: 3,
+   theme: [
+      {
+         name: 'bunny',
+         playerImage: 'images/bunny.png',
+         targetImage: 'images/carotte.png'
+      },
+      {
+         name: 'explorer',
+         playerImage: 'images/explorer.png',
+         targetImage: 'images/moai.png'
+      },
+      {
+         name: 'explorer-woman',
+         playerImage: 'images/explorer-woman.png',
+         targetImage: 'images/moai.png'
+      }
+   ],
    player: {
       element: document.querySelector("#player"),
       X: 0,
@@ -67,7 +84,7 @@ const game = {
             if (game.round <= game.target.maxTarget) {
                return game.round;
             } else {
-               return game.target.maxTarget
+               return game.target.maxTarget;
             }
          }
 
@@ -178,7 +195,7 @@ const game = {
       roundElem.textContent = `round ${game.round}`;
       game.garden.element.appendChild(roundElem);
    },
-   PopUp(action) {
+   popUp(action) {
       let popUpId = "popup";
       let popUpTextId = "popUpText";
       let popUpButtonId = "popUpButton";
@@ -196,7 +213,8 @@ const game = {
          startButton.classList.add('button', 'button-start');
          startButton.addEventListener("click", () => {
             this.hideElement(popUpDiv);
-            setTimeout(game.startGame, 1);
+            //setTimeout(game.startGame, 1);
+            setTimeout(game.chooseTheme, 1);
          });
       } else if (action === "showEndScore") {
          let popUpDiv = document.querySelector('#' + popUpId);
@@ -207,8 +225,6 @@ const game = {
          this.showElement(popUpDiv);
          
       }
-
-
    },
 
    hideElement(element) {
@@ -282,7 +298,7 @@ const game = {
 
       if (timer === 0) {
          document.querySelector('.timer-value').textContent = "TIME IS UP";
-         this.PopUp("showEndScore");
+         this.popUp("showEndScore");
          return;
       }
 
@@ -300,24 +316,65 @@ const game = {
       }, 1000);
    },
 
+   chooseTheme() {
+
+
+
+      // Choose Theme Div
+      let popUpElem = document.createElement('div');
+      popUpElem.id = "choose-theme";
+      popUpElem.classList.add('choose-theme','popup');
+      game.garden.element.appendChild(popUpElem);
+
+      // Text 
+      let textElem = document.createElement('p');
+      textElem.classList.add('choose-theme--text');
+      textElem.textContent = "Choose your Player";
+      popUpElem.appendChild(textElem);
+
+      
+      // Theme Choices
+      let i = 0;
+      for (let theme of game.theme) {
+         let name = theme.name;
+         let themeElem = document.createElement('img');   
+         themeElem.id = `img-${name}`;
+         themeElem.alt = i;
+         themeElem.src = theme.playerImage;
+         themeElem.classList.add('button');
+         popUpElem.appendChild(themeElem);
+         popUpElem.addEventListener('click', game.handleThemeChoice);
+         i++;
+      }
+
+   },
+
+   handleThemeChoice(event) {      
+      console.log(game.theme[parseInt(event.target.alt)].playerImage)
+      document.documentElement.style.setProperty('--player-image', `url(../${game.theme[parseInt(event.target.alt)].playerImage})`);
+      document.documentElement.style.setProperty('--target-image', `url(../${game.theme[parseInt(event.target.alt)].targetImage})`);
+      game.hideElement(document.querySelector('#choose-theme'));
+      setTimeout(game.startGame, 5);
+   },
+
    startGame() {
       game.round = 0;
       game.score.update(0, game.score.total);
       game.score.update(0, game.score.totem);
-      game.score.total.value = 0;
-      game.score.totem.value = 0;
+      document.querySelector('#choose-theme').remove();
       game.garden.removeSquare();
       game.createGarden(game.garden.columns(), game.garden.rows());
       game.initEventListener();
       game.initPlayerPosition();
       game.initTargetPosition();
-      game.startTimer(30);
+      game.startTimer(3);
 
    }
 }
 
 // MAIN
-game.PopUp("start");
+// popUp() => chooseTheme() => startGame()
+game.popUp("start");
 
 
 
