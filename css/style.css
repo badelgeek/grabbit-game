@@ -8,6 +8,8 @@
    --header-height: 80px;
    --main-color: #080;
    --main-height: calc(100vh - var(--header-height));
+   --player-image: url('../images/bunny.png');
+   --target-image: url('../images/carotte.png');
 }
 
 
@@ -86,7 +88,7 @@ h6 {
 .header-totem-name {
    width: 40px;
    height: 40px;
-   background-image: url('../images/carotte.png');
+   background-image: var(--target-image);
    background-size: 100%;
 }
 
@@ -116,8 +118,9 @@ h6 {
    width: 300px;
    height: 200px;
    background-color: orange;
-   border-radius: 10px;
+   box-shadow: 4px 4px 10px black;
 
+   border-radius: 10px;
    color: white;
    padding: 0 10px;
    display: flex;
@@ -131,6 +134,7 @@ h6 {
 .popup p {
    font-size: 1.8rem;
    margin-bottom: 16px;
+   text-align:center;
 }
 
 .button {
@@ -153,12 +157,28 @@ h6 {
    box-shadow: 1px 1px 4px black;
 }
 
+.choose-theme {
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   column-gap: 10px;
+   z-index:99;
+   width: 320px;
+}
+
+.choose-theme img {
+   height: 40%;
+}
+
+.choose-theme--text {
+   width: 100%;
+}
 
 .round {
    color: orange;
    text-shadow: 2px 2px 1px #FFF;
    line-height: 1;
-   font-size: 5rem;
+   font-size: 4rem;
    font-weight: 700;
    position: fixed;
    text-transform: uppercase;
@@ -200,12 +220,12 @@ h6 {
 
 .player {
    position: absolute;
-   bottom: 50px;
+   bottom: 60px;
    left: -50px;
    border: none;
    background-color: #FFF0;
    filter: drop-shadow(3px 3px 3px black);
-   background-image: url('../images/bunny.png');
+   background-image: var(--player-image);
    z-index: 10;
    animation: player-animation .4s ease-in-out alternate infinite;
 }
@@ -223,7 +243,7 @@ h6 {
    bottom: 0;
    left: 0;
    /* background-color: orange; */
-   background-image: url('../images/carotte.png');
+   background-image: var(--target-image);
    background-size: 80%;
    background-repeat: no-repeat;
    background-position: center;
