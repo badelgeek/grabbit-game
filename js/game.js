@@ -4,7 +4,6 @@
 // TODO
 // improve game.score.update
 // max width
-// timer
 //================================================================================
 
 // Html Toolbox Object
@@ -21,7 +20,9 @@ const html = {
 const game = {
    round: 0,
    squareSize: 100,
-   timeout: 3,
+   gameTime: 30,
+   bonusPoints: 20,
+   penaltyPoints: 2,
    theme: [
       {
          name: 'bunny',
@@ -39,6 +40,7 @@ const game = {
          targetImage: 'images/moai.png'
       }
    ],
+
    player: {
       element: document.querySelector("#player"),
       X: 0,
@@ -55,6 +57,7 @@ const game = {
       },
 
    },
+
    score: {
       total: {
          value: 0,
@@ -69,6 +72,7 @@ const game = {
          scoreElement.element.textContent = score;
       }
    },
+
    target: {
       selector: '.target',
       maxTarget: 0,
@@ -94,10 +98,12 @@ const game = {
          }
       }
    },
+
    screen: {
       width: document.body.clientWidth,
       height: document.body.clientHeight
    },
+
    garden: {
       element: document.querySelector(".garden"),
       width() {
@@ -160,7 +166,8 @@ const game = {
       game.printRound();
       // Set n targets regarding the garden size
       let totalSquare = game.garden.totalSquare();
-      let maxTarget = Math.ceil(totalSquare / 3);
+      let maxTarget = Math.min(game.round,Math.ceil(totalSquare / 3));
+      
       game.target.setMaxTarget(maxTarget);
       game.target.totalFound = 0;
 
@@ -178,6 +185,7 @@ const game = {
          document.querySelector(`#target-round${game.round}-${i}`).style.bottom = `${game.target.Y[i]}px`;
       }
    },
+
    randomPosition(axis) {
       // minus 1 because axis start at 0
       let max = (axis === "X") ? game.garden.columns() - 1 : game.garden.rows() - 1;
@@ -187,6 +195,7 @@ const game = {
       max = max - max % 100;
       return max;
    },
+
    printRound() {
       const roundElem = document.createElement('p');
       roundElem.id = 'round';
@@ -194,6 +203,7 @@ const game = {
       roundElem.textContent = `round ${game.round}`;
       game.garden.element.appendChild(roundElem);
    },
+
    popUp(action) {
       let popUpId = "popup";
       let popUpTextId = "popUpText";
@@ -252,38 +262,52 @@ const game = {
 
       if (event.key === 'Enter' || event.code === 'Space' || event.type === 'click') {
          let targetFound = false;
+         let lastTargetIndex;
          // Determine if player position is on target or not
          for (let i = 0, max = game.target.maxTarget; i < max; i++) {
             if (game.player.X === game.target.X[i] && game.player.Y === game.target.Y[i]) {
-               document.querySelector(`#target-round${game.round}-${i}`).style.zIndex = 98;
-               game.score.update(game.score.total.value + 20, game.score.total);
-               game.score.update(game.score.totem.value + 1, game.score.totem);
+               
+               // Display target + Animation
                document.querySelector(`#target-round${game.round}-${i}`).classList.add('target-found');
                document.querySelector(`#target-round${game.round}-${i}`).style.transform = `translate(${game.garden.width() / 2 - game.target.X[i]}px,${-Math.abs(game.garden.height() - game.target.Y[i])}px)`;
+               
+               // Update Score
+               game.score.update(game.score.total.value + game.bonusPoints, game.score.total);
+               game.score.update(game.score.totem.value + 1, game.score.totem);
+
+               // Set to null player can't win totem again
                game.target.X[i] = null;
                game.target.Y[i] = null;
-               setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
+
+               // Delete totem with timeout to let animation run
+               //setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
+               lastTargetIndex = i;
                game.target.totalFound++;
                targetFound = true;
-               //game.initTargetPosition();
+               
             }
          }
 
          if (!targetFound) {
-            game.score.update(game.score.total.value - 2, game.score.total);
+            game.score.update(game.score.total.value - game.penaltyPoints, game.score.total);
          }
 
          game.createHole(game.player.X, game.player.Y);
 
-         if (game.target.totalFound >= game.target.mission()) {
+         if (game.target.totalFound >= game.target.maxTarget) {
             game.deleteAllElements('#hole');
-            for (let i = 0, max = game.target.maxTarget; i < max; i++) {
-               setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, 1000, round = game.round, i);
-            }
+            game.deleteAllTargets(lastTargetIndex);
             game.initTargetPosition();
-            //game.initPlayerPosition();
          }
          targetFound = false;
+      }
+   },
+
+   deleteAllTargets(itemToDefer) {
+      let timeout;
+      for (let i = 0, max = game.target.maxTarget; i < max; i++) {
+         timeout = (i === itemToDefer) ? 1000 : 1;         
+         setTimeout((round, i) => { game.deleteAllElements(`#target-round${round}-${i}`) }, timeout, round = game.round, i);
       }
    },
 
@@ -311,8 +335,6 @@ const game = {
          document.removeEventListener('keyup', game.handleKeyboardAndButton);
       }, 1000 * timer);
 
-      console.log(timer);
-
       setTimeout(() => {
          game.startTimer(--timer)
       }, 1000);
@@ -330,7 +352,6 @@ const game = {
       textElem.classList.add('choose-theme--text');
       textElem.textContent = "Choose your Player";
       popUpElem.appendChild(textElem);
-
       
       // Theme Choices
       let i = 0;
@@ -338,46 +359,47 @@ const game = {
          let name = theme.name;
          let themeElem = document.createElement('img');   
          themeElem.id = `img-${name}`;
-         themeElem.alt = i;
+         themeElem.dataset.themeId = i;
          themeElem.src = theme.playerImage;
          themeElem.classList.add('button');
          popUpElem.appendChild(themeElem);
          popUpElem.addEventListener('click', game.handleThemeChoice);
          i++;
       }
-
    },
 
+   // Function : Reset game (round, scores...)
    handleThemeChoice(event) {      
-      console.log(game.theme[parseInt(event.target.alt)].playerImage)
-      document.documentElement.style.setProperty('--player-image', `url(../${game.theme[parseInt(event.target.alt)].playerImage})`);
-      document.documentElement.style.setProperty('--target-image', `url(../${game.theme[parseInt(event.target.alt)].targetImage})`);
+      document.documentElement.style.setProperty('--player-image', `url(../${game.theme[parseInt(event.target.dataset.themeId)].playerImage})`);
+      document.documentElement.style.setProperty('--target-image', `url(../${game.theme[parseInt(event.target.dataset.themeId)].targetImage})`);
       game.hideElement(document.querySelector('#choose-theme'));
       setTimeout(game.startGame, 5);
    },
 
-   startGame() {
+   // Function : Reset game (round, scores... )
+   resetToZero() {
+      // reset Round
       game.round = 0;
+      // Reset Game Score
       game.score.update(0, game.score.total);
       game.score.update(0, game.score.totem);
+      // Remove Choose theme Div
       document.querySelector('#choose-theme').remove();
+      // Remove all squares
       game.garden.removeSquare();
+   },
+
+   // Function : Start Game
+   startGame() {
+      game.resetToZero();
       game.createGarden(game.garden.columns(), game.garden.rows());
       game.initEventListener();
       game.initPlayerPosition();
       game.initTargetPosition();
-      game.startTimer(30);
-
+      game.startTimer(game.gameTime);
    }
 }
 
 // MAIN
 // popUp() => chooseTheme() => startGame()
 game.popUp("start");
-
-
-
-
-
-
-
