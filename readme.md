@@ -89,7 +89,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
     </a>
   </tr>
   <tr>
-    <a href="https://linkedin.com/abdelkarim-mehiaouik">
+    <a href="https://linkedin.com/abdelkarim-mehiaoui">
        <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"/>
     </a>
   </tr>
