@@ -14,7 +14,7 @@
       Grab all the items to make maximum points within limited time ! 
     </h3>
     <!-- PROJECT LINK -->
-    <a href="https://grabbit-game.netlify.app/"><strong>DEMO LINK</strong></a>
+    <a href="https://grabbit-game.netlify.app/" target="_blank"><strong>DEMO LINK</strong></a>
   </p>
   <br />
 </div>
